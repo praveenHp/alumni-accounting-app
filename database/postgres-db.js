@@ -8,11 +8,30 @@ class PostgreSQLDatabase {
 
     async initialize() {
         try {
-            // Create connection pool
+            console.log('Initializing PostgreSQL connection...');
+
+            // Parse the DATABASE_URL to get individual components
+            const dbUrl = new URL(process.env.DATABASE_URL);
+
+            // Create connection pool with explicit configuration
             this.pool = new Pool({
-                connectionString: process.env.DATABASE_URL,
-                ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+                user: dbUrl.username,
+                password: dbUrl.password,
+                host: dbUrl.hostname,
+                port: dbUrl.port || 5432,
+                database: dbUrl.pathname.slice(1), // Remove leading slash
+                ssl: {
+                    rejectUnauthorized: false
+                },
+                connectionTimeoutMillis: 10000,
+                idleTimeoutMillis: 30000,
+                max: 10
             });
+
+            // Test the connection
+            const client = await this.pool.connect();
+            console.log('PostgreSQL connection test successful');
+            client.release();
 
             console.log('Connected to PostgreSQL database');
 
@@ -23,7 +42,27 @@ class PostgreSQLDatabase {
             return true;
         } catch (error) {
             console.error('Error initializing PostgreSQL database:', error);
-            throw error;
+            console.error('Database URL format:', process.env.DATABASE_URL ? 'Present' : 'Missing');
+
+            // Try fallback connection with connection string
+            try {
+                console.log('Trying fallback connection method...');
+                this.pool = new Pool({
+                    connectionString: process.env.DATABASE_URL,
+                    ssl: { rejectUnauthorized: false }
+                });
+
+                const client = await this.pool.connect();
+                console.log('Fallback connection successful');
+                client.release();
+
+                await this.createTables();
+                console.log('Database tables created successfully');
+                return true;
+            } catch (fallbackError) {
+                console.error('Fallback connection also failed:', fallbackError);
+                throw new Error(`Database connection failed: ${error.message}`);
+            }
         }
     }
 
@@ -130,6 +169,17 @@ class PostgreSQLDatabase {
         const row = result.rows[0];
         
         return parseFloat(row.total_credits) - parseFloat(row.total_debits);
+    }
+
+    extractHostFromUrl(url) {
+        if (!url) return null;
+        try {
+            const urlObj = new URL(url);
+            return urlObj.hostname;
+        } catch (error) {
+            console.error('Error parsing database URL:', error);
+            return null;
+        }
     }
 
     close() {
