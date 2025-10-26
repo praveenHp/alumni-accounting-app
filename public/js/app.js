@@ -112,7 +112,15 @@ class AlumniAccountingApp {
             });
         }
 
-        // Real-time filter changes
+        // Apply filters functionality
+        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', () => {
+                this.applyFilters();
+            });
+        }
+
+        // Real-time filter changes (except dates - they need apply button)
         ['filterType', 'filterCategory', 'filterPerson', 'filterMode'].forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -121,6 +129,20 @@ class AlumniAccountingApp {
                 });
             }
         });
+
+        // Date filters - don't auto-apply, wait for apply button
+        ['startDate', 'endDate'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', () => {
+                    // Just indicate that filters have changed, don't auto-apply
+                    this.highlightApplyButton();
+                });
+            }
+        });
+
+        // Date preset buttons
+        this.bindDatePresets();
 
         // Handle fromPerson dropdown change
         document.getElementById('fromPerson').addEventListener('change', (e) => {
@@ -368,19 +390,26 @@ class AlumniAccountingApp {
         const categoryElement = document.getElementById('filterCategory');
         const personElement = document.getElementById('filterPerson');
         const modeElement = document.getElementById('filterMode');
+        const startDateElement = document.getElementById('startDate');
+        const endDateElement = document.getElementById('endDate');
 
         if (typeElement && typeElement.value) filters.type = typeElement.value;
         if (categoryElement && categoryElement.value) filters.category = categoryElement.value;
         if (personElement && personElement.value) filters.fromPerson = personElement.value;
         if (modeElement && modeElement.value) filters.mode = modeElement.value;
+        if (startDateElement && startDateElement.value) filters.startDate = startDateElement.value;
+        if (endDateElement && endDateElement.value) filters.endDate = endDateElement.value;
 
         console.log('Applying filters:', filters);
         this.loadTransactions(filters);
+
+        // Reset apply button highlight
+        this.resetApplyButton();
     }
 
     clearFilters() {
-        // Reset all filter dropdowns
-        const filterElements = ['filterType', 'filterCategory', 'filterPerson', 'filterMode'];
+        // Reset all filter dropdowns and date inputs
+        const filterElements = ['filterType', 'filterCategory', 'filterPerson', 'filterMode', 'startDate', 'endDate'];
         filterElements.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -390,6 +419,91 @@ class AlumniAccountingApp {
 
         // Reload all transactions
         this.loadTransactions();
+
+        // Reset apply button highlight
+        this.resetApplyButton();
+    }
+
+    highlightApplyButton() {
+        const applyBtn = document.getElementById('applyFiltersBtn');
+        if (applyBtn) {
+            applyBtn.classList.remove('btn-primary');
+            applyBtn.classList.add('btn-warning');
+            applyBtn.innerHTML = '<i class="fas fa-filter me-1"></i>Apply Filters *';
+        }
+    }
+
+    resetApplyButton() {
+        const applyBtn = document.getElementById('applyFiltersBtn');
+        if (applyBtn) {
+            applyBtn.classList.remove('btn-warning');
+            applyBtn.classList.add('btn-primary');
+            applyBtn.innerHTML = '<i class="fas fa-filter me-1"></i>Apply Filters';
+        }
+    }
+
+    bindDatePresets() {
+        // Today
+        const todayBtn = document.getElementById('todayBtn');
+        if (todayBtn) {
+            todayBtn.addEventListener('click', () => {
+                const today = new Date().toISOString().split('T')[0];
+                this.setDateRange(today, today);
+            });
+        }
+
+        // This Week
+        const thisWeekBtn = document.getElementById('thisWeekBtn');
+        if (thisWeekBtn) {
+            thisWeekBtn.addEventListener('click', () => {
+                const today = new Date();
+                const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+                const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+                this.setDateRange(
+                    startOfWeek.toISOString().split('T')[0],
+                    endOfWeek.toISOString().split('T')[0]
+                );
+            });
+        }
+
+        // This Month
+        const thisMonthBtn = document.getElementById('thisMonthBtn');
+        if (thisMonthBtn) {
+            thisMonthBtn.addEventListener('click', () => {
+                const today = new Date();
+                const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                this.setDateRange(
+                    startOfMonth.toISOString().split('T')[0],
+                    endOfMonth.toISOString().split('T')[0]
+                );
+            });
+        }
+
+        // Last Month
+        const lastMonthBtn = document.getElementById('lastMonthBtn');
+        if (lastMonthBtn) {
+            lastMonthBtn.addEventListener('click', () => {
+                const today = new Date();
+                const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+                this.setDateRange(
+                    startOfLastMonth.toISOString().split('T')[0],
+                    endOfLastMonth.toISOString().split('T')[0]
+                );
+            });
+        }
+    }
+
+    setDateRange(startDate, endDate) {
+        const startDateElement = document.getElementById('startDate');
+        const endDateElement = document.getElementById('endDate');
+
+        if (startDateElement) startDateElement.value = startDate;
+        if (endDateElement) endDateElement.value = endDate;
+
+        // Auto-apply filters when using presets
+        this.applyFilters();
     }
 
     updateBalanceDisplay(balance) {

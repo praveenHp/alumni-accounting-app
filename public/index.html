@@ -171,16 +171,18 @@
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <!-- Simplified Filters -->
+                    <!-- Filters with Date Range -->
                     <div class="row mb-4">
-                        <div class="col-lg-2 col-md-3 col-sm-6 mb-3">
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <label for="filterType" class="form-label text-muted small">Type</label>
                             <select class="form-select" id="filterType">
                                 <option value="">All Types</option>
                                 <option value="credit">💰 Credits Only</option>
                                 <option value="debit">💸 Debits Only</option>
                             </select>
                         </div>
-                        <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <label for="filterCategory" class="form-label text-muted small">Category</label>
                             <select class="form-select" id="filterCategory">
                                 <option value="">All Categories</option>
                                 <option value="Registration">📝 Registration</option>
@@ -198,23 +200,47 @@
                                 <option value="Miscellaneous">📋 Miscellaneous</option>
                             </select>
                         </div>
-                        <div class="col-lg-2 col-md-3 col-sm-6 mb-3">
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <label for="filterMode" class="form-label text-muted small">Mode</label>
                             <select class="form-select" id="filterMode">
                                 <option value="">All Modes</option>
                                 <option value="Cash">💵 Cash</option>
                                 <option value="Online">💳 Online</option>
                             </select>
                         </div>
-                        <div class="col-lg-3 col-md-3 col-sm-6 mb-3">
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <label for="filterPerson" class="form-label text-muted small">Person</label>
                             <select class="form-select" id="filterPerson">
                                 <option value="">All Persons</option>
                                 <!-- Names will be populated dynamically by JavaScript -->
                             </select>
                         </div>
-                        <div class="col-lg-2 col-md-12 mb-3 d-flex align-items-end">
-                            <button class="btn btn-outline-primary w-100" id="clearFiltersBtn">
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <label for="startDate" class="form-label text-muted small">From Date</label>
+                            <input type="date" class="form-control" id="startDate" placeholder="Start date">
+                        </div>
+                        <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                            <label for="endDate" class="form-label text-muted small">To Date</label>
+                            <input type="date" class="form-control" id="endDate" placeholder="End date">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-2">
+                            <div class="btn-group" role="group" aria-label="Date presets">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="todayBtn">Today</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="thisWeekBtn">This Week</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="thisMonthBtn">This Month</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="lastMonthBtn">Last Month</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-end gap-2">
+                            <button class="btn btn-outline-secondary" id="clearFiltersBtn">
                                 <i class="fas fa-refresh me-1"></i>
                                 Clear Filters
+                            </button>
+                            <button class="btn btn-primary" id="applyFiltersBtn">
+                                <i class="fas fa-filter me-1"></i>
+                                Apply Filters
                             </button>
                         </div>
                     </div>
