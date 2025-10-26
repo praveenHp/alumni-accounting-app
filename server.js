@@ -2,13 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const Database = require('./database/db');
+const DatabaseFactory = require('./database/database-factory');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Initialize database
-const database = new Database();
+// Initialize database (SQLite for local, PostgreSQL for production)
+const database = DatabaseFactory.createDatabase();
 
 // Middleware
 app.use(cors());
