@@ -688,14 +688,17 @@ class AlumniAccountingApp {
         const csvRows = [headers.join(',')];
 
         transactions.forEach(transaction => {
+            // Clean description for CSV (escape quotes and handle special characters)
+            const cleanDescription = (transaction.description || '').replace(/"/g, '""');
+
             const row = [
                 transaction.date,
-                transaction.type,
-                `"${transaction.description}"`,
+                transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1), // Capitalize first letter
+                `"${cleanDescription}"`,
                 transaction.category || '',
                 transaction.from_person || '',
                 transaction.mode || '',
-                this.formatIndianNumber(transaction.amount)
+                parseFloat(transaction.amount).toFixed(2) // Plain number without commas for Excel calculations
             ];
             csvRows.push(row.join(','));
         });
