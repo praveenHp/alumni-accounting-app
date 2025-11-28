@@ -231,6 +231,51 @@ describe('Transaction API Tests', () => {
             expect(response.body.transactions[0].category).toBe('Venue');
         });
 
+        test('should create transactions with new category names', async () => {
+            // Test the new "Events" category
+            const eventsTransaction = await request(app)
+                .post('/api/transactions')
+                .send({
+                    type: 'debit',
+                    amount: 2000,
+                    description: 'Event planning expenses',
+                    category: 'Events'
+                })
+                .expect(201);
+
+            expect(eventsTransaction.body.success).toBe(true);
+            expect(eventsTransaction.body.transaction.category).toBe('Events');
+
+            // Test the renamed "Accommodation & Transport" category
+            const transportTransaction = await request(app)
+                .post('/api/transactions')
+                .send({
+                    type: 'debit',
+                    amount: 1500,
+                    description: 'Hotel and travel expenses',
+                    category: 'Accommodation & Transport'
+                })
+                .expect(201);
+
+            expect(transportTransaction.body.success).toBe(true);
+            expect(transportTransaction.body.transaction.category).toBe('Accommodation & Transport');
+
+            // Verify filtering works with new categories
+            const eventsFilter = await request(app)
+                .get('/api/transactions?category=Events')
+                .expect(200);
+
+            expect(eventsFilter.body.transactions).toHaveLength(1);
+            expect(eventsFilter.body.transactions[0].category).toBe('Events');
+
+            const transportFilter = await request(app)
+                .get('/api/transactions?category=' + encodeURIComponent('Accommodation & Transport'))
+                .expect(200);
+
+            expect(transportFilter.body.transactions).toHaveLength(1);
+            expect(transportFilter.body.transactions[0].category).toBe('Accommodation & Transport');
+        });
+
         test('should filter transactions by fromPerson', async () => {
             const response = await request(app)
                 .get('/api/transactions?fromPerson=Rahul Sharma')
