@@ -518,7 +518,7 @@ class AlumniAccountingApp {
 
     renderTransactions(transactions) {
         const tbody = document.getElementById('transactionsTableBody');
-        
+
         if (transactions.length === 0) {
             tbody.innerHTML = `
                 <tr>
@@ -531,7 +531,19 @@ class AlumniAccountingApp {
             return;
         }
 
-        tbody.innerHTML = transactions.map(transaction => `
+        // Calculate totals for the sum row
+        const totalCredits = transactions
+            .filter(t => t.type === 'credit')
+            .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+        const totalDebits = transactions
+            .filter(t => t.type === 'debit')
+            .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+        const netTotal = totalCredits - totalDebits;
+
+        // Render transaction rows
+        const transactionRows = transactions.map(transaction => `
             <tr class="new-transaction">
                 <td>${this.formatDate(transaction.date)}</td>
                 <td>
@@ -560,6 +572,28 @@ class AlumniAccountingApp {
                 </td>
             </tr>
         `).join('');
+
+        // Create sum row
+        const sumRow = `
+            <tr class="transaction-summary-row">
+                <td colspan="6" class="text-end">Total Summary:</td>
+                <td class="text-end">
+                    <div class="summary-amounts">
+                        <small class="text-success">Credits: +${this.formatIndianCurrency(totalCredits)}</small>
+                        <small class="text-danger">Debits: -${this.formatIndianCurrency(totalDebits)}</small>
+                        <span class="text-${netTotal >= 0 ? 'success' : 'danger'}">
+                            Net: ${netTotal >= 0 ? '+' : ''}${this.formatIndianCurrency(Math.abs(netTotal))}
+                        </span>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <i class="fas fa-calculator text-muted"></i>
+                </td>
+            </tr>
+        `;
+
+        // Combine transaction rows and sum row
+        tbody.innerHTML = transactionRows + sumRow;
 
         // Add event listeners to delete buttons
         this.bindDeleteButtons();

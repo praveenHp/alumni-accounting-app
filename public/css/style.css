@@ -335,6 +335,47 @@ body {
     color: white !important;
 }
 
+/* Transaction Summary Row Styles */
+.transaction-summary-row {
+    background-color: #fff3cd !important;
+    border-top: 3px solid #ffc107 !important;
+    font-weight: normal;
+}
+
+.transaction-summary-row td {
+    padding: 1rem 0.75rem !important;
+    vertical-align: middle;
+}
+
+.transaction-summary-row .summary-amounts {
+    line-height: 1.4;
+}
+
+.transaction-summary-row .summary-amounts small {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.transaction-summary-row .summary-amounts span {
+    font-size: 1.1rem;
+    border-top: 1px solid #dee2e6;
+    padding-top: 0.25rem;
+    display: block;
+    font-weight: normal;
+}
+
+/* Responsive adjustments for summary row */
+@media (max-width: 768px) {
+    .transaction-summary-row .summary-amounts {
+        font-size: 0.8rem;
+    }
+
+    .transaction-summary-row .summary-amounts span {
+        font-size: 0.9rem;
+    }
+}
+
 /* Print Styles */
 @media print {
     .card-header,
@@ -347,5 +388,10 @@ body {
 
     .no-print {
         display: none !important;
+    }
+
+    .transaction-summary-row {
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
     }
 }
